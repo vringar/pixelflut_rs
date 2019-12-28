@@ -11,18 +11,35 @@ fn main() -> std::io::Result<()> {
 
     let image = image::open(&image)
         .expect("Image not recognized")
-        .to_rgb();
+        .to_rgba();
 
     let mut client = Client::new(TcpStream::connect("localhost:1337")?);
-    for (x, y, pixel) in image.enumerate_pixels() {
-        let image::Rgb([r,g,b]) = *pixel;
-        let pixel = Pixel {
-            x: x,
-            y: y,
-            color: Color(r, g, b, None),
-        };
-        client.write(pixel)?;
-    }
+    let pixels: Vec<String> = image
+        .enumerate_pixels()
+        .filter_map(|(x, y, pixel)| {
+            let image::Rgba([r,g,b,a]) = *pixel;
+
+            if a == 0 {
+                return None;
+            }
+
+            let pixel = Pixel {
+                x: x + 100,
+                y: y + 100,
+                color: if a == 255 {
+                    Color(r, g, b, None)
+                } else {
+                    Color(r, g, b, Some(a))
+                },
+            };
+
+            Some(pixel.to_string())
+        })
+        .collect();
+
+    let mut data_stream = pixels.join("\n");
+    data_stream.push_str(" \n");
+    client.write_raw(&data_stream)?;
 
     let result = client.read(99, 99)?;
     println!("{}", result.to_string());
