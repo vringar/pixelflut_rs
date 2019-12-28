@@ -6,8 +6,8 @@ impl ToString for Color {
     fn to_string(&self) -> String {
         let Color(r, g, b, a) = self;
         match a {
-            Some(a) => format!("{:02}{:02}{:02}{:02}", r, g, b, a),
-            None => format!("{:02}{:02}{:02}", r, g, b),
+            Some(a) => format!("{:02x}{:02x}{:02x}{:02x}", r, g, b, a),
+            None => format!("{:02x}{:02x}{:02x}", r, g, b),
         }
     }
 }

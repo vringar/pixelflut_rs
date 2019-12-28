@@ -7,10 +7,11 @@ fn main() -> std::io::Result<()> {
     let img = image::open("Snooker_triangle.svg.png").unwrap().to_rgb();
     let mut client = Client::new(TcpStream::connect("localhost:1337")?);
     for (x, y, pixel) in img.enumerate_pixels() {
+        let image::Rgb([r,g,b]) = *pixel;
         let pixel = Pixel {
             x: x,
-            y: x,
-            color: Color(99, 99, 99, None),
+            y: y,
+            color: Color(r, g, b, None),
         };
         client.write(pixel)?;
     }

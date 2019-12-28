@@ -49,6 +49,7 @@ impl Client {
             .unwrap();
         Ok((x, y))
     }
+    
     fn read_line(&mut self) -> std::io::Result<String> {
         let mut result: Vec<u8> = vec![0; 1];
         while {
