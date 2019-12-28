@@ -14,6 +14,8 @@ fn main() -> std::io::Result<()> {
     }
     let result = client.read(99, 99)?;
     println!("{}", result.to_string());
+    let (x,y) = client.size()?;
+    println!("SIZE {}, {}", x,y);
     Ok(())
 }
 struct PixelFlutClient {
@@ -43,7 +45,13 @@ impl PixelFlutClient {
         Ok(())
     }
     pub fn size(&mut self) -> std::io::Result<(u32, u32)> {
-        todo!();
+        self.stream.write(("SIZE\n").as_bytes())?;
+        let line = self.read_line()?; //SIZE X Y
+        let mut result = line.split_whitespace();
+        result.next(); //Gets rid of SIZE
+        let x = result.next().map(|string| string.parse::<u32>()).unwrap().unwrap();
+        let y = result.next().map(|string| string.parse::<u32>()).unwrap().unwrap();
+        Ok((x,y))
     }
     fn read_line(&mut self) -> std::io::Result<String> {
         let mut result: Vec<u8> = vec![0; 1];
