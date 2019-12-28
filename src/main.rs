@@ -5,6 +5,8 @@ use pixelflut::Pixel;
 use std::env;
 use std::net::TcpStream;
 
+use rand::seq::SliceRandom;
+
 fn main() -> std::io::Result<()> {
     let image = env::args().nth(1)
         .unwrap_or_else(|| "Snooker_triangle.svg.png".to_string());
@@ -13,8 +15,8 @@ fn main() -> std::io::Result<()> {
         .expect("Image not recognized")
         .to_rgba();
 
-    let mut client = Client::new(TcpStream::connect("localhost:1337")?);
-    let pixels: Vec<String> = image
+    let mut client = Client::new(TcpStream::connect("151.217.111.34:1234")?);
+    let mut pixels: Vec<_> = image
         .enumerate_pixels()
         .filter_map(|(x, y, pixel)| {
             let image::Rgba([r,g,b,a]) = *pixel;
@@ -37,14 +39,22 @@ fn main() -> std::io::Result<()> {
         })
         .collect();
 
-    let mut data_stream = pixels.join("\n");
-    data_stream.push_str(" \n");
-    client.write_raw(&data_stream)?;
+    pixels.shuffle(&mut rand::thread_rng());
 
-    let result = client.read(99, 99)?;
-    println!("{}", result.to_string());
+    let pixels: Vec<_> = pixels
+        .into_iter()
+        .collect();
+
     let (x, y) = client.size()?;
     println!("SIZE {}, {}", x, y);
+    client.write_raw("OFFSET 1200 600\n");
+
+    let mut data_stream = pixels.join("\n");
+    data_stream.push_str(" \n");
+
+    loop {
+        client.write_raw(&data_stream)?;
+    }
 
     Ok(())
 }
