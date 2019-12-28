@@ -18,9 +18,9 @@ impl Client {
             .split_whitespace()
             .last()
             .expect("There was no string to split");
-        let r = result[0..2].parse::<u8>().unwrap();
-        let g = result[2..4].parse::<u8>().unwrap();
-        let b = result[4..].parse::<u8>().unwrap();
+        let r = u8::from_str_radix(&result[0..2], 16).unwrap();
+        let g = u8::from_str_radix(&result[2..4], 16).unwrap();
+        let b = u8::from_str_radix(&result[4..], 16).unwrap();
         Ok(Pixel {
             x,
             y,
@@ -51,7 +51,7 @@ impl Client {
     }
     
     fn read_line(&mut self) -> std::io::Result<String> {
-        let mut result: Vec<u8> = vec![0; 1];
+        let mut result: Vec<u8> = vec![];
         while {
             let mut buf = vec![0; 1];
             self.stream.read(&mut buf[..])?;
