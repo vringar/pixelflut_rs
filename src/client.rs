@@ -60,7 +60,7 @@ impl Client {
         let mut result: Vec<u8> = vec![0; 1];
         while {
             let mut buf = vec![0; 1];
-            self.stream.read(&mut buf[..])?;
+            self.stream.read_exact(&mut buf[..])?;
             result.append(&mut buf);
             result.last().expect("The buffer was empty") != &b'\n'
         } {}
