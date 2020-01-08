@@ -4,9 +4,9 @@ use pixelflut::Pixel;
 
 use std::env;
 use std::net::TcpStream;
+use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::sync::RwLock;
-use std::sync::mpsc::channel;
 use std::{thread, time};
 
 use rand::seq::SliceRandom;
@@ -48,8 +48,9 @@ fn main() -> std::io::Result<()> {
     for i in 0..10 {
         let pixels = pixels.clone();
         let (producer, consumer) = channel();
-        let thread = thread::Builder::new().name(format! {"Client {}", i}).spawn(
-            move || -> std::io::Result<()> {
+        let thread = thread::Builder::new()
+            .name(format! {"Client {}", i})
+            .spawn(move || -> std::io::Result<()> {
                 let mut client = Client::new(TcpStream::connect("151.217.111.34:1234")?);
                 let (x, y) = client.size()?;
                 println!("SIZE {}, {}", x, y);
@@ -62,8 +63,7 @@ fn main() -> std::io::Result<()> {
                     client.write_raw(&data_stream)?;
                     consumer.try_recv().unwrap();
                 }
-            },
-        )?;
+            })?;
         threads.push((thread, producer));
     }
     thread::sleep(time::Duration::from_secs(100));
