@@ -24,7 +24,7 @@ impl Client {
         Ok(Pixel {
             x,
             y,
-            color: Color(r, g, b, None),
+            color: Color{r, g, b, a: None},
         })
     }
     pub fn write(&mut self, p: Pixel) -> std::io::Result<()> {
